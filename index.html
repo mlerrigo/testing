@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stockholm SL Bus Tracker — Visual Mockup</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080b0f;
+        --panel: #11161d;
+        --line: #2b3443;
+        --text: #eff6ff;
+        --muted: #a9b9cf;
+        --accent: #62b2ff;
+        --dot-bg: #020603;
+        --dot-fg: #90ff9b;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        height: 100%;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(circle at top, #101725, #080b0f 45%);
+        color: var(--text);
+      }
+
+      .app {
+        height: 100%;
+        display: grid;
+        grid-template-rows: 2fr auto 1fr;
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .map-shell {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #0a1119;
+      }
+
+      .map-surface {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 15% 30%, #193447 0 20%, transparent 21%),
+          radial-gradient(circle at 78% 64%, #173041 0 18%, transparent 19%),
+          linear-gradient(135deg, #111f2a, #0e1721 36%, #142533 58%, #0d141c 100%);
+      }
+
+      .grid-overlay {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.35;
+      }
+
+      .route {
+        position: absolute;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #58c7ff, #7be8a0);
+        filter: drop-shadow(0 0 8px rgba(122, 227, 255, 0.65));
+      }
+
+      .route.r1 { width: 44%; left: 10%; top: 32%; transform: rotate(16deg); }
+      .route.r2 { width: 36%; left: 44%; top: 60%; transform: rotate(-23deg); }
+      .route.r3 { width: 28%; left: 24%; top: 74%; transform: rotate(-6deg); }
+
+      .bus-pin, .stop-pin {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #031118;
+      }
+
+      .bus-pin {
+        width: 34px;
+        height: 34px;
+        background: #7fd8ff;
+        box-shadow: 0 0 0 3px rgba(127, 216, 255, 0.22), 0 0 18px rgba(127, 216, 255, 0.7);
+      }
+
+      .stop-pin {
+        width: 20px;
+        height: 20px;
+        background: #ffde8a;
+        box-shadow: 0 0 0 3px rgba(255, 222, 138, 0.2), 0 0 14px rgba(255, 222, 138, 0.6);
+      }
+
+      .sl4 { left: 36%; top: 38%; }
+      .sl2 { left: 63%; top: 49%; }
+      .sl67 { left: 45%; top: 67%; }
+
+      .s1 { left: 29%; top: 56%; }
+      .s2 { left: 56%; top: 35%; }
+      .s3 { left: 73%; top: 60%; }
+
+      .map-hud {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .chip {
+        background: rgba(7, 13, 20, 0.82);
+        border: 1px solid #32455f;
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 0.86rem;
+      }
+
+      .chip small {
+        color: var(--muted);
+        display: block;
+      }
+
+      .apple-badge {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid #4a576d;
+        border-radius: 999px;
+        padding: 6px 11px;
+        color: #dce7f6;
+        font-size: 0.8rem;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .controls button {
+        border: 1px solid #3c4f67;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #223247, #172436);
+        color: #f0f6ff;
+        padding: 14px 12px;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .dot-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        min-height: 0;
+      }
+
+      .dot-panel {
+        border: 1px solid #24412c;
+        border-radius: 12px;
+        padding: 10px;
+        background: repeating-radial-gradient(circle at 1px 1px, #15341a 1px, #08140a 2px, #050b05 3px);
+        overflow: auto;
+      }
+
+      .dot-panel h2 {
+        margin: 0 0 8px;
+        letter-spacing: 0.08em;
+        font-size: 0.85rem;
+        color: #b9ffc4;
+      }
+
+      .dot-text {
+        margin: 0;
+        font-family: "Courier New", Courier, monospace;
+        background: var(--dot-bg);
+        color: var(--dot-fg);
+        border: 1px solid #335636;
+        border-radius: 8px;
+        padding: 10px;
+        line-height: 1.45;
+        white-space: pre;
+      }
+
+      @media (max-width: 900px) {
+        .dot-area { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="map-shell" aria-label="Apple Maps visual mock">
+        <div class="map-surface"></div>
+        <div class="grid-overlay"></div>
+
+        <div class="route r1" aria-hidden="true"></div>
+        <div class="route r2" aria-hidden="true"></div>
+        <div class="route r3" aria-hidden="true"></div>
+
+        <div class="bus-pin sl4" title="Bus SL 4">4</div>
+        <div class="bus-pin sl2" title="Bus SL 2">2</div>
+        <div class="bus-pin sl67" title="Bus SL 67">67</div>
+
+        <div class="stop-pin s1" title="Stop Odenplan"></div>
+        <div class="stop-pin s2" title="Stop Fridhemsplan"></div>
+        <div class="stop-pin s3" title="Stop Gullmarsplan"></div>
+
+        <div class="map-hud">
+          <div class="chip"><small>Tracking bus</small><strong>SL 4 • Bus 5412</strong></div>
+          <div class="chip"><small>Selected stop</small><strong>ODENPLAN T-BANA</strong></div>
+        </div>
+
+        <div class="apple-badge"> Maps (Mockup)</div>
+      </section>
+
+      <section class="controls" aria-label="Selection actions">
+        <button type="button">Choose Bus to Track</button>
+        <button type="button">Choose Stop for Arrivals</button>
+      </section>
+
+      <section class="dot-area">
+        <article class="dot-panel" aria-label="Bus details panel">
+          <h2>SELECTED BUS STATUS</h2>
+          <pre class="dot-text">BUS: SL 4 / 5412
+ROUTE: RADIOHUSET -> GULLMARSPLAN
+CURRENT POS: 59.3389, 18.0937
+SPEED: 34 km/h
+LOAD: MODERATE
+NEXT STOP: S:T ERIKSPLAN
+ETA NEXT STOP: 03 MIN</pre>
+        </article>
+
+        <article class="dot-panel" aria-label="Stop arrivals panel">
+          <h2>SELECTED STOP ARRIVALS</h2>
+          <pre class="dot-text">STOP: ODENPLAN T-BANA
+ROUTE 2   -> KARLBERG    01 MIN
+ROUTE 4   -> RADIOHUSET  04 MIN
+ROUTE 50  -> STADSHAGEN  06 MIN
+ROUTE 67  -> FRIDHEMSPL  09 MIN
+UPDATED: LIVE</pre>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
